@@ -5,15 +5,9 @@ echo [1/2] Building Fat JAR with Maven...
 call mvn clean package
 if errorlevel 1 goto :mvn_fail
 
-echo [2/2] Creating portable app bundle (no WiX needed)...
+echo [2/2] Creating portable app bundle...
 
-set JP_CMD=jpackage
-where jpackage >nul 2>nul
-if not errorlevel 1 goto :run_jp
-
-if not defined JAVA_HOME goto :run_jp
-if not exist "%JAVA_HOME%\bin\jpackage.exe" goto :run_jp
-set JP_CMD="%JAVA_HOME%\bin\jpackage.exe"
+set JP_CMD="C:\Program Files\Java\jdk-26\bin\jpackage.exe"
 
 :run_jp
 %JP_CMD% --input target/ ^
@@ -21,7 +15,7 @@ set JP_CMD="%JAVA_HOME%\bin\jpackage.exe"
          --main-jar zDwnld-1.0-SNAPSHOT.jar ^
          --main-class opensource.DlacInc.ZDwnld.ZDwnld ^
          --type app-image ^
-         --icon Icon.png ^
+         --icon Icon.ico ^
          --app-version 1.0.0 ^
          --vendor "DlacInc"
 
