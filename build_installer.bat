@@ -14,6 +14,7 @@ if exist zDwnld rd /s /q zDwnld
 set JP_CMD="C:\Program Files\Java\jdk-26\bin\jpackage.exe"
 
 :run_jp
+timeout /t 3 /nobreak >nul
 %JP_CMD% --input target/ ^
          --name zDwnld ^
          --main-jar zDwnld-1.0-SNAPSHOT.jar ^
