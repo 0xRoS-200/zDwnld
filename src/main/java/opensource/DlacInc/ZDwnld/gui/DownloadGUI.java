@@ -59,7 +59,12 @@ public class DownloadGUI extends JFrame {
         try {
             File iconFile = new File("Icon.png");
             if (iconFile.exists()) {
-                setIconImage(new ImageIcon(iconFile.getAbsolutePath()).getImage());
+                Image img = new ImageIcon(iconFile.getAbsolutePath()).getImage();
+                setIconImage(img);
+                // Also set taskbar icon for newer Windows versions if possible
+                if (Taskbar.isSupported()) {
+                    Taskbar.getTaskbar().setIconImage(img);
+                }
             }
         } catch (Exception e) {
             System.err.println("Could not load icon: " + e.getMessage());
