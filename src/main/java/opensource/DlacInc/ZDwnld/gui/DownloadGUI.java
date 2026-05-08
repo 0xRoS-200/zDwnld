@@ -62,7 +62,7 @@ public class DownloadGUI extends JFrame {
                 Image img = new ImageIcon(iconFile.getAbsolutePath()).getImage();
                 setIconImage(img);
                 // Also set taskbar icon for newer Windows versions if possible
-                if (Taskbar.isSupported()) {
+                if (Taskbar.isTaskbarSupported()) {
                     Taskbar.getTaskbar().setIconImage(img);
                 }
             }
