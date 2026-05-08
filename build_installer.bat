@@ -7,15 +7,22 @@ if errorlevel 1 goto :mvn_fail
 
 echo [2/2] Creating portable app bundle...
 
-:: Kill any running instances to prevent file locks
+:: Kill any potential blockers
 taskkill /f /im zDwnld.exe >nul 2>&1
-if exist zDwnld rd /s /q zDwnld
+
+:: Use a unique temp folder to avoid "Access Denied" from locked directories
+set TEMP_BUILD=build_tmp_%RANDOM%
+if exist %TEMP_BUILD% rd /s /q %TEMP_BUILD%
+mkdir %TEMP_BUILD%
 
 set JP_CMD="C:\Program Files\Java\jdk-26\bin\jpackage.exe"
 
-:run_jp
+echo Waiting for file system to settle...
 timeout /t 3 /nobreak >nul
+
+:run_jp
 %JP_CMD% --input target/ ^
+         --dest %TEMP_BUILD% ^
          --name zDwnld ^
          --main-jar zDwnld-1.0-SNAPSHOT.jar ^
          --main-class opensource.DlacInc.ZDwnld.ZDwnld ^
@@ -27,9 +34,15 @@ timeout /t 3 /nobreak >nul
 if errorlevel 1 goto :jp_fail
 
 echo.
+echo [3/3] Finalizing...
+:: Try to clean up the old folder, but don't fail if it's locked
+if exist zDwnld rd /s /q zDwnld >nul 2>&1
+move %TEMP_BUILD%\zDwnld .\zDwnld >nul
+rd /s /q %TEMP_BUILD% >nul 2>&1
+
+echo.
 echo Done! Your portable app is in the "zDwnld" folder.
 echo The icon is embedded directly into "zDwnld\zDwnld.exe".
-echo You can zip the zDwnld folder and share it with anyone!
 pause
 exit /b 0
 

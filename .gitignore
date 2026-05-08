@@ -8,3 +8,8 @@ yt-dlp.exe
 ffmpeg.exe
 *.meta
 history.json
+zDwnld/
+build_tmp_*/
+build_dist/
+dependency-reduced-pom.xml
+*.zip
