@@ -5,7 +5,7 @@ echo [1/2] Building Fat JAR with Maven...
 call mvn clean package
 if errorlevel 1 goto :mvn_fail
 
-echo [2/2] Creating Windows Installer (.exe)...
+echo [2/2] Creating portable app bundle (no WiX needed)...
 
 set JP_CMD=jpackage
 where jpackage >nul 2>nul
@@ -20,17 +20,17 @@ set JP_CMD="%JAVA_HOME%\bin\jpackage.exe"
          --name zDwnld ^
          --main-jar zDwnld-1.0-SNAPSHOT.jar ^
          --main-class opensource.DlacInc.ZDwnld.ZDwnld ^
-         --type exe ^
-         --win-dir-chooser ^
-         --win-shortcut ^
+         --type app-image ^
          --icon Icon.png ^
          --app-version 1.0.0 ^
-         --vendor "DlacInc" ^
-         --description "High Speed Download Manager"
+         --vendor "DlacInc"
 
 if errorlevel 1 goto :jp_fail
 
-echo Success! Your all-in-one installer is in the current directory.
+echo.
+echo Done! Your portable app is in the "zDwnld" folder.
+echo Inside it you will find zDwnld.exe - run that to launch the app.
+echo You can zip that folder and share it with anyone!
 pause
 exit /b 0
 
@@ -42,7 +42,6 @@ exit /b 1
 :jp_fail
 echo.
 echo ERROR: jpackage failed or was not found.
-echo 1. Ensure you have a JDK installed (not just JRE).
-echo 2. Ensure you have the WiX Toolset installed: https://wixtoolset.org/
+echo Make sure you have a JDK installed (not just JRE) and JAVA_HOME is set.
 pause
 exit /b 1
