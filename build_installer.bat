@@ -7,6 +7,8 @@ if errorlevel 1 goto :mvn_fail
 
 echo [2/2] Creating portable app bundle...
 
+:: Kill any running instances to prevent file locks
+taskkill /f /im zDwnld.exe >nul 2>&1
 if exist zDwnld rd /s /q zDwnld
 
 set JP_CMD="C:\Program Files\Java\jdk-26\bin\jpackage.exe"
@@ -17,19 +19,15 @@ set JP_CMD="C:\Program Files\Java\jdk-26\bin\jpackage.exe"
          --main-jar zDwnld-1.0-SNAPSHOT.jar ^
          --main-class opensource.DlacInc.ZDwnld.ZDwnld ^
          --type app-image ^
+         --icon Icon.ico ^
          --app-version 1.0.0 ^
          --vendor "DlacInc"
 
 if errorlevel 1 goto :jp_fail
 
 echo.
-echo [3/3] Stamping custom icon into exe...
-timeout /t 2 /nobreak >nul
-powershell -ExecutionPolicy Bypass -Command "$shell = New-Object -ComObject WScript.Shell; $lnk = $shell.CreateShortcut('zDwnld\zDwnld.lnk'); $lnk.TargetPath = (Resolve-Path 'zDwnld\zDwnld.exe').Path; $lnk.IconLocation = (Resolve-Path 'Icon.ico').Path; $lnk.Save(); Write-Host 'Shortcut with custom icon created: zDwnld\zDwnld.lnk'"
-
-echo.
 echo Done! Your portable app is in the "zDwnld" folder.
-echo Run "zDwnld\zDwnld.lnk" for the custom icon, or "zDwnld\zDwnld.exe" directly.
+echo The icon is embedded directly into "zDwnld\zDwnld.exe".
 echo You can zip the zDwnld folder and share it with anyone!
 pause
 exit /b 0
