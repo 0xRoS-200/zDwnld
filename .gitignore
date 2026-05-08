@@ -1,0 +1,10 @@
+target/
+*.class
+.idea/
+*.iml
+.vscode/
+.zDwnld/
+yt-dlp.exe
+ffmpeg.exe
+*.meta
+history.json
