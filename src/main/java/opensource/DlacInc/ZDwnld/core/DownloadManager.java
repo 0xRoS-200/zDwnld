@@ -43,7 +43,7 @@ public class DownloadManager {
 
         // ── Resume or Fresh Start ─────────────────────────────────────────────
         if (metaFile.exists() && saveFile.exists()) {
-            System.out.println("\n⚡ Incomplete download found! Resuming...\n");
+            System.out.println("\n[RESUME] Incomplete download found! Resuming...\n");
             chunks = loadMeta(metaPath);
             fileSize = 0;
             for (Chunk chunk : chunks) {
@@ -59,11 +59,11 @@ public class DownloadManager {
             try (RandomAccessFile raf = new RandomAccessFile(savePath, "rw")) {
                 raf.setLength(fileSize);
             }
-            System.out.println("File pre-allocated on disk ✅");
+            System.out.println("File pre-allocated on disk [DONE]");
 
             // Save meta immediately
             saveMeta(chunks, metaPath);
-            System.out.println("Resume file created ✅\n");
+            System.out.println("Resume file created [DONE]\n");
         }
 
         // ── Only download PENDING or FAILED chunks ────────────────────────────
@@ -79,7 +79,7 @@ public class DownloadManager {
                 if (listener != null) listener.onChunkStateChange(chunk.getId(), "PENDING");
                 chunksToDownload.add(chunk);
             } else {
-                System.out.println("Chunk " + chunk.getId() + " already done, skipping ⏭️");
+                System.out.println("Chunk " + chunk.getId() + " already done, skipping [SKIP]");
                 if (listener != null) {
                     listener.onChunkStateChange(chunk.getId(), "COMPLETED");
                     listener.onChunkProgress(chunk.getId(), chunk.getSize());
@@ -122,12 +122,12 @@ public class DownloadManager {
         System.out.println("\n========================================");
         if (allSuccess) {
             metaFile.delete(); // clean up resume file
-            System.out.println("Download Complete ✅");
+            System.out.println("Download Complete [DONE]");
             System.out.println("Saved to  : " + savePath);
             System.out.println("Time      : " + elapsed + " seconds");
             if (listener != null) listener.onComplete();
         } else {
-            System.out.println("Download Incomplete ❌");
+            System.out.println("Download Incomplete [ERROR]");
             System.out.println("Run again to resume from where it stopped.");
             if (listener != null) listener.onError("Download Incomplete. Run again to resume.");
         }

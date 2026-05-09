@@ -54,14 +54,14 @@ public class ChunkDownloader implements Callable<Boolean> {
             chunk.setState(Chunk.ChunkState.COMPLETED);
             if (listener != null) listener.onChunkStateChange(chunk.getId(), "COMPLETED");
             System.out.println("[Thread " + Thread.currentThread().getName() + "] " +
-                               "Completed Chunk " + chunk.getId() + " ✅");
+                               "Completed Chunk " + chunk.getId() + " [DONE]");
             return true;
 
         } catch (IOException | InterruptedException e) {
             chunk.setState(Chunk.ChunkState.FAILED);
             if (listener != null) listener.onChunkStateChange(chunk.getId(), "FAILED");
             System.out.println("[Thread " + Thread.currentThread().getName() + "] " +
-                               "Failed Chunk " + chunk.getId() + " ❌ " + e.getMessage());
+                               "Failed Chunk " + chunk.getId() + " [ERROR] " + e.getMessage());
             return false;
         }
     }

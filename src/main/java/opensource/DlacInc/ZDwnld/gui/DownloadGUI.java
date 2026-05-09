@@ -5,11 +5,13 @@ import opensource.DlacInc.ZDwnld.core.DownloadManager;
 import opensource.DlacInc.ZDwnld.core.ProgressListener;
 import opensource.DlacInc.ZDwnld.network.DownloadClient;
 import opensource.DlacInc.ZDwnld.network.FileInfo;
+import opensource.DlacInc.ZDwnld.network.LocalServer;
 import opensource.DlacInc.ZDwnld.network.MediaExtractor;
 import opensource.DlacInc.ZDwnld.network.YtDlpWrapper;
 import opensource.DlacInc.ZDwnld.network.YtDlpWrapper.MediaFormat;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -50,6 +52,14 @@ public class DownloadGUI extends JFrame {
     private DownloadManager manager;
     private YtDlpWrapper ytDlp;
     private volatile boolean isDownloading = false;
+    private LocalServer localServer;
+
+    // Accent colours used across the UI
+    private static final Color ACCENT    = new Color(255, 140, 0);
+    private static final Color ACCENT_DK = new Color(200, 100, 0);
+    private static final Color BG_CARD   = new Color(40, 40, 48);
+    private static final Color BG_DARK   = new Color(28, 28, 34);
+    private static final Color TEXT_DIM  = new Color(160, 160, 170);
 
     public DownloadGUI() {
         super("zDwnld - High Speed Download Manager");
@@ -74,12 +84,29 @@ public class DownloadGUI extends JFrame {
         setupLayout();
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(650, 450));
-        setSize(850, 600);
+        setMinimumSize(new Dimension(750, 520));
+        setSize(950, 650);
         setLocationRelativeTo(null);
-        
+
         DebugConsole.initialize(this);
         setupSpeedTimer();
+
+        // Start local server for browser extension integration
+        localServer = new LocalServer(url -> SwingUtilities.invokeLater(() -> {
+            toFront();
+            requestFocus();
+            urlField.setText(url);
+            JOptionPane.showMessageDialog(this,
+                "<html><b>Download with zDwnld?</b><br><small>" + url + "</small></html>",
+                "zDwnld Browser Extension", JOptionPane.QUESTION_MESSAGE);
+        }));
+        localServer.start();
+
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override public void windowClosing(java.awt.event.WindowEvent e) {
+                if (localServer != null) localServer.stop();
+            }
+        });
     }
 
     private void initComponents() {
@@ -88,40 +115,30 @@ public class DownloadGUI extends JFrame {
 
         urlField = new JTextField();
         urlField.setFont(mainFont);
-        
+        urlField.setToolTipText("Paste a direct URL or a YouTube / Vimeo link");
+
         savePathField = new JTextField(DEFAULT_DOWNLOAD_DIR);
         savePathField.setFont(mainFont);
-        
+
         threadsSpinner = new JSpinner(new SpinnerNumberModel(8, 1, 32, 1));
         threadsSpinner.setFont(mainFont);
-        
-        downloadButton = new JButton("Start / Resume");
-        downloadButton.setFont(boldFont);
-        downloadButton.setBackground(new Color(255, 140, 0)); 
-        downloadButton.setForeground(Color.WHITE);
-        
-        pauseButton = new JButton("Pause");
-        pauseButton.setFont(boldFont);
-        pauseButton.setEnabled(false);
 
-        cancelButton = new JButton("Cancel");
-        cancelButton.setFont(boldFont);
+        downloadButton = styledBtn("Start / Resume", ACCENT, Color.WHITE);
+        pauseButton    = styledBtn("Pause",          new Color(60, 100, 180), Color.WHITE);
+        cancelButton   = styledBtn("Cancel",         new Color(160, 50, 50),  Color.WHITE);
+        historyButton  = styledBtn("History",        new Color(55, 55, 68),   Color.WHITE);
+        openFolderButton = styledBtn("Folder",       new Color(55, 55, 68),   Color.WHITE);
+        debugButton    = styledBtn("Settings",       new Color(55, 55, 68),   Color.WHITE);
+        debugButton.setToolTipText("Open Debug Console");
+
+        pauseButton.setEnabled(false);
         cancelButton.setEnabled(false);
 
-        historyButton = new JButton("History");
-        historyButton.setFont(boldFont);
-        
-        openFolderButton = new JButton("Open Folder");
-        openFolderButton.setFont(boldFont);
-        
-        debugButton = new JButton("⚙");
-        debugButton.setFont(boldFont);
-        debugButton.setToolTipText("Open Debugger Console");
-        
         globalProgressBar = new JProgressBar(0, 100);
         globalProgressBar.setStringPainted(true);
         globalProgressBar.setFont(boldFont);
-        
+        globalProgressBar.setPreferredSize(new Dimension(0, 26));
+
         statusLabel = new JLabel("Status: Waiting");
         statusLabel.setFont(mainFont);
         speedLabel = new JLabel("Speed: 0 KB/s");
@@ -291,8 +308,15 @@ public class DownloadGUI extends JFrame {
 
     private void startDownload() {
         String url = urlField.getText().trim();
-        String saveDir = savePathField.getText().trim();
-        int threads = (Integer) threadsSpinner.getValue();
+        // ── Resume fix: savePathField may contain a full file path from a previous run
+        String rawPath = savePathField.getText().trim();
+        File rawFile = new File(rawPath);
+        String resolvedDir = (rawFile.exists() && rawFile.isFile())
+            ? rawFile.getParent()  // use parent dir so the .meta file path matches
+            : rawPath;
+        if (resolvedDir == null || resolvedDir.isEmpty()) resolvedDir = DEFAULT_DOWNLOAD_DIR;
+        final String saveDir = resolvedDir;   // effectively final for lambdas
+        final int threads = (Integer) threadsSpinner.getValue();
 
         if (url.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter a URL.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -458,7 +482,7 @@ public class DownloadGUI extends JFrame {
                         DownloadHistory.updateStatus(savePath, "COMPLETED");
                         SwingUtilities.invokeLater(() -> {
                             globalProgressBar.setValue(100);
-                            statusLabel.setText("Status: Complete \u2705");
+                            statusLabel.setText("Status: Complete (Done)");
                             JOptionPane.showMessageDialog(DownloadGUI.this, "Download finished successfully!\nSaved to: " + savePath, "Success", JOptionPane.INFORMATION_MESSAGE);
                             resetUI();
                         });
@@ -582,7 +606,7 @@ public class DownloadGUI extends JFrame {
                     SwingUtilities.invokeLater(() -> {
                         speedTimer.stop();
                         globalProgressBar.setValue(100);
-                        statusLabel.setText("Status: Complete \u2705");
+                        statusLabel.setText("Status: Complete (Done)");
                         speedLabel.setText("Speed: 0 KB/s");
                         etaLabel.setText("ETA: 00:00");
                         JOptionPane.showMessageDialog(DownloadGUI.this, "Download finished successfully!\nSaved to: " + savePath, "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -619,6 +643,22 @@ public class DownloadGUI extends JFrame {
         urlField.setEnabled(true);
         pauseButton.setEnabled(false);
         cancelButton.setEnabled(false);
+    }
+
+    /** Create a styled, hover-animated button. */
+    private JButton styledBtn(String text, Color bg, Color fg) {
+        JButton btn = new JButton(text);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setBackground(bg);
+        btn.setForeground(fg);
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override public void mouseEntered(java.awt.event.MouseEvent e) { btn.setBackground(bg.brighter()); }
+            @Override public void mouseExited(java.awt.event.MouseEvent e)  { btn.setBackground(bg); }
+        });
+        return btn;
     }
 
     private String guessFileName(String url) {
