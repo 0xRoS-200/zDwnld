@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 public class MediaExtractor {
 
-    // Regex to match <video src="...">, <source src="...">, <audio src="...">
+    
     private static final Pattern MEDIA_PATTERN = Pattern.compile("<(?:video|audio|source)[^>]+src=[\"']([^\"']+)[\"'][^>]*>", Pattern.CASE_INSENSITIVE);
 
     public static List<String> extractMediaLinks(String html, String baseUrl) {

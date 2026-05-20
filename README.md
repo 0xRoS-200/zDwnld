@@ -232,38 +232,46 @@ zDwnld/
 
 ---
 
-## Build and Run
+## Installation and Setup
 
-Requirements: JDK 26 and Apache Maven.
+### For Users (Standalone EXE)
+1. Head to the **Releases** page on GitHub.
+2. Download the standalone `zDwnld_portable.exe` file.
+3. Double-click it to run. No Java runtime or installation is required by you.
+   * *Note*: On the first run, the executable will extract its minimized runtime package to `%LOCALAPPDATA%\zDwnld_portable\`. Subsequent runs are instantaneous.
 
-Clone the repository:
-
-```bash
-git clone https://github.com/0xRoS-200/zDwnld.git
-cd zDwnld
-```
-
-Compile and run:
-
-```bash
-mvn compile exec:java
-```
+### Browser Extension Setup (Chrome/Edge/Brave/Opera)
+1. Open your browser and navigate to `chrome://extensions/` (or `edge://extensions/`).
+2. Toggle the **Developer mode** switch (usually in the top-right corner).
+3. Click the **Load unpacked** button.
+4. Select the `browser-extension` folder located inside the `zDwnld` repository folder.
+5. Keep the `zDwnld_portable.exe` app open. The extension will now automatically detect download links or HTML media and display a floating **Download with zDwnld** badge.
 
 ---
 
-## Building a Native Installer
+## Building from Source
 
-Run the provided script to create a portable Windows app bundle (no WiX Toolset required):
+### Requirements
+- JDK 26.0.1 or higher
+- Apache Maven
 
+### Dev Build and Run
 ```bash
-.\build_installer.bat
+git clone https://github.com/0xRoS-200/zDwnld.git
+cd zDwnld
+mvn compile exec:java
 ```
 
-This will:
-1. Compile all source files and bundle dependencies into a single fat JAR.
-2. Use jpackage to produce a self-contained `zDwnld/` folder with a native `zDwnld.exe` launcher.
-
-The output folder can be zipped and distributed. End users do not need Java installed.
+### Packaging a Standalone Portable EXE (Release)
+To compile a single self-contained executable with the application icon embedded, execute:
+```powershell
+powershell -ExecutionPolicy Bypass -File .\build_single_exe.ps1
+```
+This script will:
+1. Compile the sources and shade dependencies into a single fat JAR.
+2. Run `jpackage` to build the app package.
+3. Zip the package and embed it as a resource in a C# launcher compiled via the built-in Windows `csc.exe` compiler.
+4. Clean up temporary files, outputting the final `zDwnld_portable.exe`.
 
 ---
 

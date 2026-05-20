@@ -20,7 +20,7 @@ public class ChunkSplitter {
         for (int i = 0; i < threadCount; i++) {
             long endByte;
 
-            // Last chunk gets any remaining bytes
+            
             if (i == threadCount - 1) {
                 endByte = fileSizeBytes - 1;
             } else {

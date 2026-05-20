@@ -17,7 +17,7 @@ public class DownloadClient {
                 .build();
     }
 
-    //Inspect URL (prints all info)
+    
     public void inspect(String url) throws IOException, InterruptedException {
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -86,7 +86,7 @@ public class DownloadClient {
             }
         }
         
-        // Sanitize the filename for Windows/Linux
+        
         if (filename != null) {
             filename = filename.replaceAll("[\\\\/:*?\"<>|;]", "_");
         }
@@ -100,7 +100,7 @@ public class DownloadClient {
         return response.body();
     }
 
-    // Chunk if server supports chunking
+    
     public boolean supportsRanges(String url) throws IOException, InterruptedException {
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -115,7 +115,7 @@ public class DownloadClient {
                 .orElse(false);
     }
 
-    //Download a specific byte range (one chunk)
+    
     public InputStream downloadChunk(String url, long startByte, long endByte) 
             throws IOException, InterruptedException {
 
@@ -134,7 +134,7 @@ public class DownloadClient {
         }
     }
 
-    //Format bytes to human readable
+    
     private String formatSize(long bytes) {
         if (bytes < 1024)                return bytes + " B";
         if (bytes < 1024 * 1024)         return bytes / 1024 + " KB";

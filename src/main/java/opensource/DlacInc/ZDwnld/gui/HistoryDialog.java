@@ -41,7 +41,7 @@ public class HistoryDialog extends JDialog {
     }
 
     private void buildUI() {
-        // ── Header ──────────────────────────────────────────────
+        
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(CARD);
         header.setBorder(new EmptyBorder(14, 20, 14, 20));
@@ -65,7 +65,7 @@ public class HistoryDialog extends JDialog {
         header.add(headerRight, BorderLayout.EAST);
         add(header, BorderLayout.NORTH);
 
-        // ── Table ────────────────────────────────────────────────
+        
         model = new DefaultTableModel(
             new Object[]{"#", "File Name", "Status", "Size", "Date", "Open", "Delete"}, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
@@ -82,13 +82,13 @@ public class HistoryDialog extends JDialog {
         table.setSelectionBackground(new Color(255, 140, 0, 60));
         table.setSelectionForeground(TEXT_PRIMARY);
 
-        // Header style
+        
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
         table.getTableHeader().setBackground(new Color(35, 35, 43));
         table.getTableHeader().setForeground(ACCENT);
         table.getTableHeader().setReorderingAllowed(false);
 
-        // Column widths
+        
         table.getColumnModel().getColumn(0).setMaxWidth(40);
         table.getColumnModel().getColumn(0).setPreferredWidth(40);
         table.getColumnModel().getColumn(1).setPreferredWidth(220);
@@ -98,13 +98,13 @@ public class HistoryDialog extends JDialog {
         table.getColumnModel().getColumn(5).setPreferredWidth(100);
         table.getColumnModel().getColumn(6).setPreferredWidth(100);
 
-        // Status badge renderer
-        // Renderers
+        
+        
         table.getColumnModel().getColumn(2).setCellRenderer(new StatusBadgeRenderer());
-        table.getColumnModel().getColumn(5).setCellRenderer(new ActionButtonRenderer(new Color(60, 120, 220))); // Blue
-        table.getColumnModel().getColumn(6).setCellRenderer(new ActionButtonRenderer(new Color(200, 50, 50)));  // Red
+        table.getColumnModel().getColumn(5).setCellRenderer(new ActionButtonRenderer(new Color(60, 120, 220))); 
+        table.getColumnModel().getColumn(6).setCellRenderer(new ActionButtonRenderer(new Color(200, 50, 50)));  
 
-        // Row click → open folder on "Actions" col
+        
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -113,7 +113,7 @@ public class HistoryDialog extends JDialog {
                 if (row < 0 || row >= history.size()) return;
                 DownloadHistory.HistoryEntry entry = history.get(row);
 
-                if (col == 5) { // Open Folder
+                if (col == 5) { 
                     try {
                         File dir = new File(entry.savePath).getParentFile();
                         if (dir != null && dir.exists())
@@ -122,7 +122,7 @@ public class HistoryDialog extends JDialog {
                             JOptionPane.showMessageDialog(HistoryDialog.this,
                                 "Folder no longer exists.", "Not Found", JOptionPane.WARNING_MESSAGE);
                     } catch (Exception ex) { ex.printStackTrace(); }
-                } else if (col == 6) { // Delete row
+                } else if (col == 6) { 
                     int choice = JOptionPane.showOptionDialog(
                         HistoryDialog.this,
                         "Remove \"" + new File(entry.savePath).getName() + "\" from history?",
@@ -146,7 +146,7 @@ public class HistoryDialog extends JDialog {
         scroll.setBackground(BG);
         add(scroll, BorderLayout.CENTER);
 
-        // ── Footer bar ───────────────────────────────────────────
+        
         JPanel footer = new JPanel(new BorderLayout());
         footer.setBackground(CARD);
         footer.setBorder(new EmptyBorder(8, 16, 8, 16));
@@ -221,7 +221,7 @@ public class HistoryDialog extends JDialog {
         return String.format("%.2f GB", bytes / (1024.0 * 1024.0 * 1024.0));
     }
 
-    // ── Status badge cell renderer ────────────────────────────────
+    
     static class StatusBadgeRenderer extends DefaultTableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(JTable t, Object v,
@@ -245,7 +245,7 @@ public class HistoryDialog extends JDialog {
         }
     }
 
-    // ── Button renderer for Open/Delete columns ───────────────────
+    
     static class ActionButtonRenderer extends DefaultTableCellRenderer {
         private final Color bgColor;
         public ActionButtonRenderer(Color bg) {

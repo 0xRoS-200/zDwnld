@@ -20,7 +20,7 @@ public class DownloadHistory {
     }
 
     public static synchronized void addEntry(String url, String savePath, long size, String status) {
-        // remove existing if same path to avoid dupes
+        
         history.removeIf(e -> e.savePath.equals(savePath));
         history.add(new HistoryEntry(url, savePath, size, status, System.currentTimeMillis()));
         saveHistory();
@@ -40,10 +40,7 @@ public class DownloadHistory {
         return new ArrayList<>(history);
     }
 
-    /**
-     * Clear all history entries. Optionally also delete the downloaded files from disk.
-     * @param deleteFiles if true, deletes actual downloaded files; also removes orphaned .meta files
-     */
+    
     public static synchronized void clearAll(boolean deleteFiles) {
         if (deleteFiles) {
             for (HistoryEntry e : history) {
@@ -57,11 +54,7 @@ public class DownloadHistory {
         saveHistory();
     }
 
-    /**
-     * Remove a single history entry by index.
-     * @param index the index in getHistory() list
-     * @param deleteFile if true, deletes the actual file from disk
-     */
+    
     public static synchronized void deleteEntry(int index, boolean deleteFile) {
         if (index < 0 || index >= history.size()) return;
         HistoryEntry e = history.get(index);

@@ -15,10 +15,10 @@ set TEMP_BUILD=build_tmp_%RANDOM%
 if exist %TEMP_BUILD% rd /s /q %TEMP_BUILD%
 mkdir %TEMP_BUILD%
 
-set JP_CMD="C:\Program Files\Java\jdk-26\bin\jpackage.exe"
+set JP_CMD="C:\Program Files\Java\jdk-26.0.1\bin\jpackage.exe"
 
 echo Waiting for file system to settle...
-timeout /t 3 /nobreak >nul
+ping 127.0.0.1 -n 4 >nul
 
 :run_jp
 %JP_CMD% --input target/ ^
@@ -43,17 +43,14 @@ rd /s /q %TEMP_BUILD% >nul 2>&1
 echo.
 echo Done! Your portable app is in the "zDwnld" folder.
 echo The icon is embedded directly into "zDwnld\zDwnld.exe".
-pause
 exit /b 0
 
 :mvn_fail
 echo Maven build failed.
-pause
 exit /b 1
 
 :jp_fail
 echo.
 echo ERROR: jpackage failed or was not found.
 echo Make sure you have a JDK installed (not just JRE) and JAVA_HOME is set.
-pause
 exit /b 1

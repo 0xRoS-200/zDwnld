@@ -34,12 +34,12 @@ public class ChunkDownloader implements Callable<Boolean> {
                            " [" + chunk.getStartByte() + " -> " + chunk.getEndByte() + "]");
 
         try {
-            // Download the byte range from server
+            
             InputStream inputStream = downloadClient.downloadChunk(url, chunk.getStartByte(), chunk.getEndByte());
 
-            // Write directly to correct offset in file (no merging needed!)
+            
             try (RandomAccessFile raf = new RandomAccessFile(filePath, "rw")) {
-                raf.seek(chunk.getStartByte()); // jump to correct position
+                raf.seek(chunk.getStartByte()); 
                 byte[] buffer = new byte[8192];
                 int bytesRead;
                 while ((bytesRead = inputStream.read(buffer)) != -1) {

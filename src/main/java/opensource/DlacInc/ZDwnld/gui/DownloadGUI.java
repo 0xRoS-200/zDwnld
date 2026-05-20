@@ -54,7 +54,7 @@ public class DownloadGUI extends JFrame {
     private volatile boolean isDownloading = false;
     private LocalServer localServer;
 
-    // Accent colours used across the UI
+    
     private static final Color ACCENT    = new Color(255, 140, 0);
     private static final Color ACCENT_DK = new Color(200, 100, 0);
     private static final Color BG_CARD   = new Color(40, 40, 48);
@@ -65,13 +65,13 @@ public class DownloadGUI extends JFrame {
         super("zDwnld - High Speed Download Manager");
         client = new DownloadClient();
 
-        // Set App Icon
+        
         try {
             File iconFile = new File("Icon.png");
             if (iconFile.exists()) {
                 Image img = new ImageIcon(iconFile.getAbsolutePath()).getImage();
                 setIconImage(img);
-                // Also set taskbar icon for newer Windows versions if possible
+                
                 if (Taskbar.isTaskbarSupported()) {
                     Taskbar.getTaskbar().setIconImage(img);
                 }
@@ -91,7 +91,7 @@ public class DownloadGUI extends JFrame {
         DebugConsole.initialize(this);
         setupSpeedTimer();
 
-        // Start local server for browser extension integration
+        
         localServer = new LocalServer(url -> SwingUtilities.invokeLater(() -> {
             toFront();
             requestFocus();
@@ -236,7 +236,7 @@ public class DownloadGUI extends JFrame {
         threadPanel.add(threadsSpinner);
         topPanel.add(threadPanel, gbc);
 
-        // Buttons Panel
+        
         gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2; gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
@@ -281,7 +281,7 @@ public class DownloadGUI extends JFrame {
             if (globalFileSize <= 0) return;
             
             long speed = bytesDownloadedThisSecond;
-            bytesDownloadedThisSecond = 0; // reset
+            bytesDownloadedThisSecond = 0; 
             
             SwingUtilities.invokeLater(() -> {
                 if (speed > 1024 * 1024) {
@@ -308,14 +308,14 @@ public class DownloadGUI extends JFrame {
 
     private void startDownload() {
         String url = urlField.getText().trim();
-        // ── Resume fix: savePathField may contain a full file path from a previous run
+        
         String rawPath = savePathField.getText().trim();
         File rawFile = new File(rawPath);
         String resolvedDir = (rawFile.exists() && rawFile.isFile())
-            ? rawFile.getParent()  // use parent dir so the .meta file path matches
+            ? rawFile.getParent()  
             : rawPath;
         if (resolvedDir == null || resolvedDir.isEmpty()) resolvedDir = DEFAULT_DOWNLOAD_DIR;
-        final String saveDir = resolvedDir;   // effectively final for lambdas
+        final String saveDir = resolvedDir;   
         final int threads = (Integer) threadsSpinner.getValue();
 
         if (url.isEmpty()) {
@@ -339,7 +339,7 @@ public class DownloadGUI extends JFrame {
 
         new Thread(() -> {
             try {
-                // Try yt-dlp first if it's a known media site
+                
                 if (url.contains("youtube.com") || url.contains("youtu.be") || url.contains("vimeo.com") || url.contains("twitter.com")) {
                     SwingUtilities.invokeLater(() -> statusLabel.setText("Status: Fetching formats via yt-dlp..."));
                     
@@ -362,7 +362,7 @@ public class DownloadGUI extends JFrame {
                     return;
                 }
 
-                // Fallback to regular HTTP download
+                
                 FileInfo info = client.getFileInfo(url);
                 
                 if (info.isHtml) {
@@ -383,7 +383,7 @@ public class DownloadGUI extends JFrame {
                             if (selected != null) {
                                 urlField.setText(selected);
                                 resetUI();
-                                startDownload(); // Restart with direct media link
+                                startDownload(); 
                             } else {
                                 resetUI();
                             }
@@ -446,7 +446,7 @@ public class DownloadGUI extends JFrame {
 
                     @Override
                     public void onYtDlpProgress(String progressLine) {
-                        // Example: [download]  45.0% of ~100MiB at  1.5MiB/s ETA 00:30
+                        
                         try {
                             String pStr = progressLine.replaceAll(".*?\\[download\\]\\s+([0-9.]+)%.*", "$1");
                             if (!pStr.equals(progressLine)) {
@@ -458,13 +458,13 @@ public class DownloadGUI extends JFrame {
                                 });
                             }
                             
-                            // Try to extract speed
+                            
                             if (progressLine.contains(" at ")) {
                                 String speed = progressLine.split(" at ")[1].split(" ETA ")[0].trim();
                                 SwingUtilities.invokeLater(() -> speedLabel.setText("Speed: " + speed));
                             }
                             
-                            // Try to extract ETA
+                            
                             if (progressLine.contains(" ETA ")) {
                                 String eta = progressLine.split(" ETA ")[1].trim();
                                 SwingUtilities.invokeLater(() -> etaLabel.setText("ETA: " + eta));
@@ -490,7 +490,7 @@ public class DownloadGUI extends JFrame {
 
                     @Override
                     public void onError(String message) {
-                        if (!isDownloading) return; // Means it was cancelled
+                        if (!isDownloading) return; 
                         DownloadHistory.updateStatus(savePath, "FAILED");
                         SwingUtilities.invokeLater(() -> {
                             statusLabel.setText("Status: Error");
@@ -645,7 +645,7 @@ public class DownloadGUI extends JFrame {
         cancelButton.setEnabled(false);
     }
 
-    /** Create a styled, hover-animated button. */
+    
     private JButton styledBtn(String text, Color bg, Color fg) {
         JButton btn = new JButton(text);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 13));

@@ -1,13 +1,9 @@
-/**
- * zDwnld Helper — Content Script
- * Detects <video>, <audio>, and direct download links on every page.
- * Shows a floating "⬇ Download with zDwnld" button on hover.
- */
+
 
 const ZDWNLD_URL = 'http://127.0.0.1:6868';
 const BADGE_ID   = 'zdwnld-badge';
 
-// --- Badge element -----------------------------------------------------------
+
 function createBadge() {
   if (document.getElementById(BADGE_ID)) return document.getElementById(BADGE_ID);
   const badge = document.createElement('div');
@@ -65,13 +61,13 @@ function sendToZDwnld(url) {
     body:    JSON.stringify({ url }),
   })
   .then(r => r.json())
-  .then(() => { /* zDwnld received it */ })
+  .then(() => {  })
   .catch(() => {
     alert('zDwnld is not running. Please open zDwnld first.');
   });
 }
 
-// --- Attach hover listeners to media / download elements --------------------
+
 const DOWNLOAD_EXTS = /\.(mp4|mkv|avi|mov|flv|webm|mp3|m4a|aac|flac|ogg|wav|zip|rar|7z|tar|gz|iso|pdf|exe|msi|apk|dmg)(\?|$)/i;
 
 function attachToElement(el) {
@@ -98,7 +94,7 @@ function scanPage() {
   });
 }
 
-// Initial scan + watch for dynamic content
+
 scanPage();
 const observer = new MutationObserver(scanPage);
 observer.observe(document.body, { childList: true, subtree: true });

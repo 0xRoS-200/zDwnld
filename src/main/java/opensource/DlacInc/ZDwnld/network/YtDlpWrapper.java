@@ -73,14 +73,14 @@ public class YtDlpWrapper {
         );
         currentProcess = pb.start();
         
-        // Let the GUI know yt-dlp is starting
+        
         listener.onDownloadStart(1);
         listener.onChunkStart(0, 0, 100);
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(currentProcess.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println("[yt-dlp] " + line); // Print full terminal output to debugger
+                System.out.println("[yt-dlp] " + line); 
                 if (line.contains("[download]")) {
                     listener.onYtDlpProgress(line);
                 }

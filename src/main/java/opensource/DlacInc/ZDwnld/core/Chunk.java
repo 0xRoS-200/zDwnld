@@ -26,7 +26,7 @@ public class Chunk implements Serializable {
         return endByte - startByte + 1;
     }
 
-    // Getters
+    
     public int getId()          { return id; }
     public long getStartByte()  { return startByte; }
     public long getEndByte()    { return endByte; }

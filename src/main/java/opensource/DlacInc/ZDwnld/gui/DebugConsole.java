@@ -25,7 +25,7 @@ public class DebugConsole extends JDialog {
         JScrollPane scrollPane = new JScrollPane(consoleArea);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Redirect System.out and System.err
+        
         OutputStream out = new OutputStream() {
             @Override
             public void write(int b) {

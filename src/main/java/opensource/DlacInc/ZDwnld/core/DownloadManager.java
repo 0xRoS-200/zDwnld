@@ -28,20 +28,20 @@ public class DownloadManager {
 
     public void cancel() {
         if (executor != null && !executor.isShutdown()) {
-            executor.shutdownNow(); // interrupt running threads
+            executor.shutdownNow(); 
         }
     }
 
     public void download(String url, String savePath, ProgressListener listener) throws Exception {
 
-        String metaPath = savePath + ".meta"; // resume file
+        String metaPath = savePath + ".meta"; 
         File metaFile = new File(metaPath);
         File saveFile = new File(savePath);
 
         List<Chunk> chunks;
         long fileSize;
 
-        // ── Resume or Fresh Start ─────────────────────────────────────────────
+        
         if (metaFile.exists() && saveFile.exists()) {
             System.out.println("\n[RESUME] Incomplete download found! Resuming...\n");
             chunks = loadMeta(metaPath);
@@ -55,18 +55,18 @@ public class DownloadManager {
             ChunkSplitter splitter = new ChunkSplitter(threadCount);
             chunks = splitter.split(fileSize);
 
-            // Pre-allocate file
+            
             try (RandomAccessFile raf = new RandomAccessFile(savePath, "rw")) {
                 raf.setLength(fileSize);
             }
             System.out.println("File pre-allocated on disk [DONE]");
 
-            // Save meta immediately
+            
             saveMeta(chunks, metaPath);
             System.out.println("Resume file created [DONE]\n");
         }
 
-        // ── Only download PENDING or FAILED chunks ────────────────────────────
+        
         if (listener != null) listener.onDownloadStart(chunks.size());
 
         List<Chunk> chunksToDownload = new ArrayList<>();
@@ -75,7 +75,7 @@ public class DownloadManager {
                 listener.onChunkStart(chunk.getId(), chunk.getStartByte(), chunk.getEndByte());
             }
             if (chunk.getState() != Chunk.ChunkState.COMPLETED) {
-                chunk.setState(Chunk.ChunkState.PENDING); // reset FAILED to PENDING
+                chunk.setState(Chunk.ChunkState.PENDING); 
                 if (listener != null) listener.onChunkStateChange(chunk.getId(), "PENDING");
                 chunksToDownload.add(chunk);
             } else {
@@ -95,7 +95,7 @@ public class DownloadManager {
 
         System.out.println("\nChunks to download: " + chunksToDownload.size() + "/" + chunks.size());
 
-        // ── Thread Pool ───────────────────────────────────────────────────────
+        
         executor = Executors.newFixedThreadPool(threadCount);
         List<Future<Boolean>> futures = new ArrayList<>();
 
@@ -107,21 +107,21 @@ public class DownloadManager {
         System.out.println("\nDownloading...\n");
         long startTime = System.currentTimeMillis();
 
-        // ── Wait and save progress after each chunk ───────────────────────────
+        
         boolean allSuccess = true;
         for (Future<Boolean> future : futures) {
             boolean result = future.get();
-            saveMeta(chunks, metaPath); // save progress after every chunk
+            saveMeta(chunks, metaPath); 
             if (!result) allSuccess = false;
         }
 
         long elapsed = (System.currentTimeMillis() - startTime) / 1000;
         executor.shutdown();
 
-        // ── Result ────────────────────────────────────────────────────────────
+        
         System.out.println("\n========================================");
         if (allSuccess) {
-            metaFile.delete(); // clean up resume file
+            metaFile.delete(); 
             System.out.println("Download Complete [DONE]");
             System.out.println("Saved to  : " + savePath);
             System.out.println("Time      : " + elapsed + " seconds");
@@ -134,14 +134,14 @@ public class DownloadManager {
         System.out.println("========================================");
     }
 
-    // ── Save chunk states to .meta file ──────────────────────────────────────
+    
     private void saveMeta(List<Chunk> chunks, String metaPath) throws IOException {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(metaPath))) {
             oos.writeObject(chunks);
         }
     }
 
-    // ── Load chunk states from .meta file ────────────────────────────────────
+    
     @SuppressWarnings("unchecked")
     private List<Chunk> loadMeta(String metaPath) throws IOException, ClassNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(metaPath))) {
